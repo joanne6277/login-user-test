@@ -102,6 +102,7 @@ h1, h2, h3, h4 { font-weight: 600; color: #111827; }
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   color: #9ca3af;
   border: 1px dashed #d1d5db;
   font-size: 1.25rem;
@@ -111,6 +112,20 @@ h1, h2, h3, h4 { font-weight: 600; color: #111827; }
 .book-cover-1 { background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%); color: white; border: none; }
 .book-cover-2 { background: linear-gradient(135deg, #bbf7d0 0%, #86efac 100%); color: white; border: none; }
 .book-cover-3 { background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%); color: white; border: none; }
+
+.book-source-tag {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  color: white;
+  padding: 0.25rem 0.6rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
 /* Login Split Layout */
 .login-container {
@@ -261,9 +276,16 @@ h1, h2, h3, h4 { font-weight: 600; color: #111827; }
 .action-row:last-child { border-bottom: none; }
 .action-info { flex: 1; padding-right: 2rem; }
 .action-info strong { display: block; margin-bottom: 0.5rem; font-size: 1.15rem; color: var(--text-main); }
+.action-info { flex: 1; padding-right: 2rem; }
+.action-info strong { display: block; margin-bottom: 0.5rem; font-size: 1.15rem; color: var(--text-main); }
 .action-info p { font-size: 1rem; color: var(--text-light); line-height: 1.6; }
 .action-row .btn { padding: 0.85rem 1.75rem; font-size: 1.05rem; white-space: nowrap; flex-shrink: 0; }
 .account-danger { margin-top: 1rem; display: flex; gap: 1.5rem; border-top: 2px solid var(--border); padding-top: 2.5rem; }
+
+.device-linked-stores { margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 2px solid var(--border); }
+.device-linked-stores h4 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-main); }
+.store-tags { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.store-tag { background: #f3f4f6; color: #374151; padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.95rem; border: 1px solid #d1d5db; }
 
 .tester-controls {
   position: fixed;

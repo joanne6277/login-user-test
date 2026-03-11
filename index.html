@@ -83,6 +83,12 @@
                         <div class="scan-line"></div>
                     </div>
                 </div>
+                
+                <div class="qr-timer-container" style="display: flex; justify-content: space-between; align-items: center; max-width: 240px; margin: 0 auto; margin-bottom: 1rem;">
+                    <p style="font-size: 0.9rem; color: var(--text-main);">QR Code 重整倒數: <strong id="qr-timer" style="color: var(--primary);">90</strong> 秒</p>
+                    <button class="btn btn-outline btn-refresh-qr" id="btn-refresh-qr" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; border-width: 1px;">重新整理</button>
+                </div>
+
                 <p class="status-msg">等待掃描中...</p>
                 <!-- 測試用按鈕：模擬掃描 -->
                 <button class="btn btn-primary mt-4 w-full" id="btn-simulate-scan">模擬手機已掃描</button>
@@ -121,6 +127,15 @@
                         <h3>目前登入方式</h3>
                         <p id="account-status-text">未登入</p>
                     </div>
+                    
+                    <!-- 裝置登入狀態下顯示的唯獨已連結書庫名單 -->
+                    <div class="device-linked-stores hidden" id="device-linked-stores">
+                        <h4>您已透過 App 連結以下書店</h4>
+                        <div class="store-tags" id="device-store-tags">
+                            <!-- JS 動態產生，例如：<span class="store-tag">三民書局</span> -->
+                        </div>
+                    </div>
+                    
                     <div class="account-actions">
                         <!-- 切換書店連結，預設加上 id 以利 JS 操作 -->
                         <div class="action-row" id="row-store-link">

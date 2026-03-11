@@ -8,6 +8,7 @@ const AppState = {
 
 const app = {
     state: { ...AppState },
+    qrTimerInterval: null,
     
     init() {
         this.loadState();
@@ -52,7 +53,50 @@ const app = {
         if(targetView) targetView.classList.remove('hidden');
         
         this.state.currentView = viewId;
+        
+        // 觸發 QR Code Timer
+        if (viewId === 'view-qr-scan') {
+            this.startQrTimer();
+        } else if (this.qrTimerInterval) {
+            clearInterval(this.qrTimerInterval);
+            this.qrTimerInterval = null;
+        }
+
         this.saveState();
+    },
+
+    startQrTimer() {
+        if (this.qrTimerInterval) clearInterval(this.qrTimerInterval);
+        
+        let timeLeft = 90;
+        const timerSpan = document.getElementById('qr-timer');
+        const scanLine = document.querySelector('.scan-line');
+        const msgEl = document.querySelector('.status-msg');
+        const btnSimulate = document.getElementById('btn-simulate-scan');
+        
+        if (timerSpan) timerSpan.innerText = timeLeft;
+        if (scanLine) scanLine.style.display = 'block';
+        if (msgEl) {
+            msgEl.innerText = "等待掃描中...";
+            msgEl.style.color = "var(--text-light)";
+        }
+        if (btnSimulate) btnSimulate.disabled = false;
+        
+        this.qrTimerInterval = setInterval(() => {
+            timeLeft--;
+            if (timerSpan) timerSpan.innerText = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(this.qrTimerInterval);
+                this.qrTimerInterval = null;
+                if (scanLine) scanLine.style.display = 'none';
+                if (msgEl) {
+                    msgEl.innerText = "QR Code 已失效，請重新整理";
+                    msgEl.style.color = "var(--danger)";
+                }
+                if (btnSimulate) btnSimulate.disabled = true; // 超時則禁用模擬掃描
+            }
+        }, 1000);
     },
 
     bindEvents() {
@@ -95,25 +139,43 @@ const app = {
         });
 
         // --- QR Code 掃描 ---
+        const btnRefreshQr = document.getElementById('btn-refresh-qr');
+        if (btnRefreshQr) {
+            btnRefreshQr.addEventListener('click', () => {
+                this.startQrTimer();
+            });
+        }
+
         document.getElementById('btn-simulate-scan').addEventListener('click', () => {
             const msgEl = document.querySelector('.status-msg');
             msgEl.innerText = "掃描成功！驗證裝置授權中...";
             msgEl.style.color = "var(--primary)";
             
+            // 點擊後立即停止倒數計時，避免在驗證途中還跳超時
+            if (this.qrTimerInterval) {
+                clearInterval(this.qrTimerInterval);
+                this.qrTimerInterval = null;
+            }
+            
             setTimeout(() => {
+                const defaultAppStores = ['灰熊愛讀書', '三民書局', '讀冊', '金石堂'];
+                
                 // 如果是登入情境
                 if (!this.state.isLoggedIn) {
                     this.state.isLoggedIn = true;
                     this.state.loginMethod = "device";
-                    this.state.linkedStores = []; 
+                    this.state.linkedStores = defaultAppStores; 
                     this.saveState();
                     this.navigate('view-bookshelf');
                 } else {
                     // 如果是驗證情境 (透過帳號管理)
-                    this.state.loginMethod = "device"; // 需求 1: 轉為裝置登入狀態
+                    this.state.loginMethod = "device"; 
+                    // 原本可能已有其他書店紀錄，這裡結合App帶來的四家做聯集
+                    const currentStores = Array.isArray(this.state.linkedStores) ? this.state.linkedStores : [];
+                    this.state.linkedStores = [...new Set([...currentStores, ...defaultAppStores])];
                     this.saveState();
                     alert('裝置驗證成功！此裝置已設為信任裝置。');
-                    this.navigate('view-account');
+                    this.navigate('view-bookshelf');
                 }
                 msgEl.innerText = "等待掃描中...";
                 msgEl.style.color = "var(--text-light)";
@@ -178,6 +240,9 @@ const app = {
         
         const rowStoreLink = document.getElementById('row-store-link');
         const rowDeviceAuth = document.getElementById('row-device-auth');
+        const deviceLinkedStores = document.getElementById('device-linked-stores');
+        const deviceStoreTags = document.getElementById('device-store-tags');
+        const stores = Array.isArray(this.state.linkedStores) ? this.state.linkedStores : [];
         
         if (this.state.isLoggedIn) {
             dangerZone.classList.remove('hidden');
@@ -188,23 +253,32 @@ const app = {
                 btnLogout.classList.add('hidden');
                 btnUnlink.classList.remove('hidden');
                 accountActions.classList.add('hidden'); // 隱藏所有連結與驗證按鈕
+                
+                // 顯示唯讀的已連結書店區塊
+                if (deviceLinkedStores) {
+                    deviceLinkedStores.classList.remove('hidden');
+                    if (stores.length > 0) {
+                        deviceStoreTags.innerHTML = stores.map(store => `<span class="store-tag">${store}</span>`).join('');
+                    } else {
+                        deviceStoreTags.innerHTML = '<span class="store-tag" style="background:transparent; border:none; padding:0; color:var(--text-light);">尚無同步紀錄</span>';
+                    }
+                }
             } else {
-                const stores = Array.isArray(this.state.linkedStores) ? this.state.linkedStores : [];
                 statusText.innerText = stores.length > 0 ? `透過 ${stores[0]} 帳號登入` : `透過書店帳號登入`;
                 linkedStoreText.innerText = `已連結: ${stores.length > 0 ? stores.join('、') : '無紀錄'}`;
                 
-                // 針對單一帳號登入模式 (loginMethod === 'single' 或陣列有值) -> 隱藏書店連結、保留 QR Code 與裝置登出。
                 btnLogout.classList.remove('hidden');
                 btnUnlink.classList.add('hidden');
                 accountActions.classList.remove('hidden'); 
-                
-                if (rowStoreLink) rowStoreLink.classList.add('hidden'); // 隱藏書店帳號連結區塊
+                if (rowStoreLink) rowStoreLink.classList.add('hidden'); // 單一書店登入不顯示跨綁連結
+                if (deviceLinkedStores) deviceLinkedStores.classList.add('hidden'); // 隱藏唯讀區塊
             }
         } else {
             statusText.innerText = "未登入";
             linkedStoreText.innerText = `尚未連結任何書店`;
             dangerZone.classList.add('hidden');
             accountActions.classList.remove('hidden');
+            if (deviceLinkedStores) deviceLinkedStores.classList.add('hidden');
         }
 
         // --- 2. 更新目前顯示的 View ---
@@ -220,6 +294,26 @@ const app = {
              
             const target = document.getElementById(this.state.currentView);
             if(target) target.classList.remove('hidden');
+        }
+
+        // --- 3. 更新書櫃書籍來源標籤 ---
+        const bookshelfGrid = document.querySelector('#view-bookshelf .book-grid');
+        if (bookshelfGrid) {
+            const stores = Array.isArray(this.state.linkedStores) && this.state.linkedStores.length > 0
+                ? this.state.linkedStores
+                : ['書紐 eXross']; // 若無紀錄則給定預設來源
+            
+            let booksHTML = '';
+            for (let i = 1; i <= 3; i++) {
+                const tag = stores[(i - 1) % stores.length]; // 依序套用已綁定的書店名稱
+                booksHTML += `
+                    <div class="book-card mock-book book-cover-${i}">
+                        <div class="book-source-tag">${tag}</div>
+                        正在閱讀的書 ${i}
+                    </div>
+                `;
+            }
+            bookshelfGrid.innerHTML = booksHTML;
         }
     }
 };
