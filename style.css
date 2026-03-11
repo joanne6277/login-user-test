@@ -249,18 +249,21 @@ h1, h2, h3, h4 { font-weight: 600; color: #111827; }
 .bookshelf-content { padding: 3rem 2rem; max-width: 1200px; margin: 0 auto; width: 100%; text-align: center; }
 .bookshelf-content h2 { font-size: 2rem; margin-bottom: 1rem; text-align: left;}
 
-/* Account Management */
-.account-content { padding: 3rem 2rem; max-width: 800px; margin: 0 auto; width: 100%; }
-.account-content h2 { font-size: 2rem; margin-bottom: 2rem; }
-.account-card { background: white; border-radius: 1rem; padding: 2.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); margin-top: 1.5rem; }
-.account-status { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
-.account-status h3 { font-size: 1rem; color: var(--text-light); margin-bottom: 0.5rem; }
-.account-status p { font-size: 1.25rem; font-weight: 500; color: var(--primary); }
-.account-actions h4 { margin-bottom: 1rem; font-size: 1.25rem; }
-.action-row { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; border-bottom: 1px solid var(--border); }
-.action-info strong { display: block; margin-bottom: 0.25rem; }
-.action-info p { font-size: 0.9rem; color: var(--text-light); }
-.account-danger { margin-top: 2rem; display: flex; gap: 1rem; border-top: 1px solid var(--border); padding-top: 2rem; }
+/* Account Management - optimized for 1280x800 */
+.account-content { padding: 2rem; max-width: 900px; margin: 0 auto; width: 100%; }
+.account-content h2 { font-size: 2.25rem; margin-bottom: 1.5rem; text-align: left; }
+.account-card { background: white; border-radius: 1.25rem; padding: 3rem; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); margin-top: 1rem; }
+.account-status { margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 2px solid var(--border); }
+.account-status h3 { font-size: 1.1rem; color: var(--text-light); margin-bottom: 0.75rem; }
+.account-status p { font-size: 1.5rem; font-weight: 600; color: var(--primary); }
+.account-actions h4 { margin-bottom: 1.5rem; font-size: 1.4rem; font-weight: 700; }
+.action-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 2rem 0; border-bottom: 1px solid var(--border); }
+.action-row:last-child { border-bottom: none; }
+.action-info { flex: 1; padding-right: 2rem; }
+.action-info strong { display: block; margin-bottom: 0.5rem; font-size: 1.15rem; color: var(--text-main); }
+.action-info p { font-size: 1rem; color: var(--text-light); line-height: 1.6; }
+.action-row .btn { padding: 0.85rem 1.75rem; font-size: 1.05rem; white-space: nowrap; flex-shrink: 0; }
+.account-danger { margin-top: 1rem; display: flex; gap: 1.5rem; border-top: 2px solid var(--border); padding-top: 2.5rem; }
 
 .tester-controls {
   position: fixed;

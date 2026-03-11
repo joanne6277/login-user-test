@@ -176,6 +176,9 @@ const app = {
         const dangerZone = document.getElementById('danger-zone');
         const accountActions = document.querySelector('.account-actions'); // 需求 2: 隱藏連結管理
         
+        const rowStoreLink = document.getElementById('row-store-link');
+        const rowDeviceAuth = document.getElementById('row-device-auth');
+        
         if (this.state.isLoggedIn) {
             dangerZone.classList.remove('hidden');
             
@@ -187,11 +190,15 @@ const app = {
                 accountActions.classList.add('hidden'); // 隱藏所有連結與驗證按鈕
             } else {
                 const stores = Array.isArray(this.state.linkedStores) ? this.state.linkedStores : [];
-                statusText.innerText = `單一書店登入`;
+                statusText.innerText = stores.length > 0 ? `透過 ${stores[0]} 帳號登入` : `透過書店帳號登入`;
                 linkedStoreText.innerText = `已連結: ${stores.length > 0 ? stores.join('、') : '無紀錄'}`;
+                
+                // 針對單一帳號登入模式 (loginMethod === 'single' 或陣列有值) -> 隱藏書店連結、保留 QR Code 與裝置登出。
                 btnLogout.classList.remove('hidden');
                 btnUnlink.classList.add('hidden');
-                accountActions.classList.remove('hidden'); // 顯示連結與驗證按鈕
+                accountActions.classList.remove('hidden'); 
+                
+                if (rowStoreLink) rowStoreLink.classList.add('hidden'); // 隱藏書店帳號連結區塊
             }
         } else {
             statusText.innerText = "未登入";

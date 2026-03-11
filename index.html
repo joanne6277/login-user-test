@@ -21,20 +21,20 @@
                 </div>
                 <div class="login-card">
                     <h3>登入書紐 eXross</h3>
-                    <p class="subtitle">請選擇您要登入的方式</p>
+                    <p class="subtitle">請選擇您的登入方式</p>
                     <div class="login-options">
                         <button class="btn btn-login-option" id="btn-login-single">
                             <span class="icon">📚</span>
                             <div class="text">
-                                <strong>單一書店登入</strong>
-                                <span>使用三民或灰熊等書店帳號登入</span>
+                                <strong>透過書店登入</strong>
+                                <span>使用三民或灰熊書店帳號登入</span>
                             </div>
                         </button>
                         <button class="btn btn-login-option" id="btn-login-device">
                             <span class="icon">📱</span>
                             <div class="text">
-                                <strong>透過裝置登入</strong>
-                                <span>掃描 QR Code 快速登入</span>
+                                <strong>掃描QR Code登入</strong>
+                                <span>使用書紐 App 登入，同步匯入您在網路書店平台已購買的所有電子書</span>
                             </div>
                         </button>
                     </div>
@@ -45,11 +45,11 @@
         <!-- Bookstore Selector (for Single Bookstore Login) -->
         <section id="view-store-selector" class="view hidden glass-modal-container">
             <div class="modal">
-                <h3 id="store-selector-title">選擇書店</h3>
-                <p>選擇您購買電子書的書店以進行授權</p>
+                <h3 id="store-selector-title">選擇授權書店</h3>
+                <p>點選後將跳轉至書店網站，完成授權後即可登入 eXross</p>
                 <div class="store-grid">
                     <button class="btn btn-store" data-store="三民書局">三民書局</button>
-                    <button class="btn btn-store" data-store="灰熊書店">灰熊書店</button>
+                    <button class="btn btn-store" data-store="灰熊愛讀書">灰熊愛讀書</button>
                 </div>
                 <button class="btn btn-text mt-4 btn-cancel-selector">返回上一頁</button>
             </div>
@@ -58,7 +58,7 @@
         <!-- OAuth Bookstore Login -->
         <section id="view-oauth-login" class="view hidden glass-modal-container">
             <div class="modal oauth-modal">
-                <h3 id="oauth-store-name">書店授權登入</h3>
+                <h3 id="oauth-store-name">書店外站授權登入</h3>
                 <p>請登入您的書店帳號以授權 eXross 存取您的書櫃</p>
                 <div class="form-group">
                     <label>帳號 (測試可隨意填寫)</label>
@@ -77,7 +77,7 @@
         <section id="view-qr-scan" class="view hidden glass-modal-container">
             <div class="modal qr-modal">
                 <h3>透過裝置登入 / 驗證</h3>
-                <p>請使用已登入書紐 eXross 的手機 App 掃描此 QR Code</p>
+                <p>請開啟書紐 eXross App，掃描下方 QR Code 登入</p>
                 <div class="qr-code-box">
                     <div class="qr-placeholder">
                         <div class="scan-line"></div>
@@ -99,11 +99,11 @@
                 </div>
             </header>
             <main class="bookshelf-content">
-                <h2>我的書櫃</h2>
+                <h2>首頁</h2>
                 <div class="book-grid">
-                    <div class="book-card mock-book book-cover-1">想讀的書 1</div>
-                    <div class="book-card mock-book book-cover-2">想讀的書 2</div>
-                    <div class="book-card mock-book book-cover-3">想讀的書 3</div>
+                    <div class="book-card mock-book book-cover-1">正在閱讀的書 1</div>
+                    <div class="book-card mock-book book-cover-2">正在閱讀的書 2</div>
+                    <div class="book-card mock-book book-cover-3">正在閱讀的書 3</div>
                 </div>
             </main>
         </section>
@@ -112,37 +112,36 @@
         <section id="view-account" class="view hidden bookshelf-layout">
             <header class="top-nav">
                 <div class="logo" onclick="app.navigate('view-bookshelf')" style="cursor:pointer">書紐 eXross</div>
-                <button class="btn btn-outline" onclick="app.navigate('view-bookshelf')">返回書櫃</button>
+                <button class="btn btn-outline" onclick="app.navigate('view-bookshelf')">返回</button>
             </header>
             <main class="account-content">
                 <h2>帳號管理</h2>
                 <div class="account-card">
                     <div class="account-status">
-                        <h3>目前登入狀態</h3>
+                        <h3>目前登入方式</h3>
                         <p id="account-status-text">未登入</p>
                     </div>
-                    
                     <div class="account-actions">
-                        <h4>連結管理</h4>
-                        <div class="action-row">
+                        <!-- 切換書店連結，預設加上 id 以利 JS 操作 -->
+                        <div class="action-row" id="row-store-link">
                             <div class="action-info">
-                                <strong>書店帳號連結</strong>
+                                <strong>使用其他書店帳號連結</strong>
                                 <p id="linked-store-name">尚未連結任何書店</p>
                             </div>
                             <button class="btn btn-outline" id="btn-acc-switch-store">連結其他書店</button>
                         </div>
-                        <div class="action-row">
+                        <div class="action-row" id="row-device-auth">
                             <div class="action-info">
-                                <strong>信任裝置管理</strong>
-                                <p>設定此裝置為信任，快速無密碼登入</p>
+                                <strong>一鍵同步多家書櫃</strong>
+                                <p>使用書紐eXross App掃碼驗證，即可在網頁端同步檢視您於各書店購買的所有藏書。<br><span style="font-size: 0.85em; color: var(--primary); cursor: pointer; text-decoration: underline;">(未安裝？點此下載 App 快速整合您的書櫃)</span></p>
                             </div>
-                            <button class="btn btn-outline" id="btn-acc-device-auth">進行裝置驗證</button>
+                            <button class="btn btn-outline" id="btn-acc-device-auth">掃描 QR Code 登入</button>
                         </div>
                     </div>
 
                     <div class="account-danger hidden" id="danger-zone">
-                        <button class="btn btn-danger hidden" id="btn-acc-logout">安全登出帳號</button>
-                        <button class="btn btn-danger hidden" id="btn-acc-unlink">解除信任裝置連結</button>
+                        <button class="btn btn-danger hidden" id="btn-acc-logout">登出</button>
+                        <button class="btn btn-danger hidden" id="btn-acc-unlink">解除此裝置連結</button>
                     </div>
                 </div>
             </main>
