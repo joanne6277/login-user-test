@@ -1,6 +1,8 @@
 # Daily Log
 
 ## 2026-03-16
+- [Document] 新增 `requirements_spec.md` — 登入頁面 & 帳號管理頁面功能需求規格書。依據使用者測試後的最終原型（`index.html` / `app.js` / `style.css`）撰寫，涵蓋：術語定義、系統狀態模型（`isLoggedIn` / `loginMethod` / `linkedStores`）、登入頁面兩種方式（QR Code 掃碼登入 + OAuth 書店帳號登入）完整規格、帳號管理頁面三種狀態（書店帳號 / 裝置 / 未登入）的 UI 條件差異對照表、QR Code 共用元件規格（90 秒倒數 / 狀態訊息 / 重新整理）、頁面導航流程圖（Mermaid）、8 支後端 API 端點建議、非功能需求（瀏覽器支援 / 響應式 / 安全性 / 無障礙 / 動畫）。溝通對象為系統分析師與前後端工程師。
+- [Feature] 在測試控制面板「重置所有狀態」按鈕旁新增「登入問題請點我」按鈕。修改 `index.html`（`.tester-controls` 新增按鈕，綁定 `app.showLoginHelp()`）、`app.js`（新增 `showLoginHelp()` 方法，點擊後以 `alert` 顯示登入常見 Q&A，包含登入方式說明、QR Code 過期處理、忘記密碼、多書店連結、掃碼無反應等 5 題）。
 - [Enhancement] 帳號管理頁面 QR Code 直接顯示：單一書店登入狀態下，將原本的「掃描 QR Code 登入」按鈕改為直接在帳號管理頁面內嵌顯示 QR Code。修改 `index.html`（將 `row-device-auth` 從 `action-row` + 按鈕改為 `account-qr-section` + 內嵌 QR Code 區塊，含倒數計時、狀態訊息、模擬掃描按鈕）、`app.js`（新增 `accountQrTimerInterval`，`startQrTimer` 與 `handleSimulateScan` 支援 `account` context，`navigate()` 進入帳號頁時自動啟動計時器）、`style.css`（新增 `.account-qr-section` 與 `.account-qr-wrapper` 樣式）。說明文字從「使用書紐 eXross App 掃碼驗證」調整為「開啟書紐 eXross App 掃描下方 QR Code」。
 
 ## 2026-03-13

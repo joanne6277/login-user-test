@@ -38,6 +38,30 @@ const app = {
         this.navigate('view-exross-login');
     },
 
+    showLoginHelp() {
+        const helpMessage = [
+            '【登入問題常見 Q&A】',
+            '',
+            'Q1: 如何登入 eXross？',
+            'A1: 您可以使用「書紐 App 掃碼登入」或「書店帳號登入」兩種方式。',
+            '',
+            'Q2: QR Code 過期怎麼辦？',
+            'A2: 點選「重新整理」按鈕即可取得新的 QR Code。',
+            '',
+            'Q3: 忘記書店帳號密碼？',
+            'A3: 請前往各書店官網進行密碼重設。',
+            '',
+            'Q4: 如何連結多家書店？',
+            'A4: 登入後至「帳號管理」頁面，點選「連結其他書店」即可新增。',
+            '',
+            'Q5: 掃碼後沒有反應？',
+            'A5: 請確認手機與電腦處於同一網路環境，並重新整理 QR Code 後再試。',
+            '',
+            '如仍有問題，請聯繫客服信箱：support@exross.com'
+        ].join('\n');
+        alert(helpMessage);
+    },
+
     navigate(viewId, origin = null) {
         if(origin) {
             this.state.sourceView = origin;
