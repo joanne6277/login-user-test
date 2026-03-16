@@ -1,5 +1,15 @@
 # Daily Log
 
+## 2026-03-16
+- [Enhancement] 帳號管理頁面 QR Code 直接顯示：單一書店登入狀態下，將原本的「掃描 QR Code 登入」按鈕改為直接在帳號管理頁面內嵌顯示 QR Code。修改 `index.html`（將 `row-device-auth` 從 `action-row` + 按鈕改為 `account-qr-section` + 內嵌 QR Code 區塊，含倒數計時、狀態訊息、模擬掃描按鈕）、`app.js`（新增 `accountQrTimerInterval`，`startQrTimer` 與 `handleSimulateScan` 支援 `account` context，`navigate()` 進入帳號頁時自動啟動計時器）、`style.css`（新增 `.account-qr-section` 與 `.account-qr-wrapper` 樣式）。說明文字從「使用書紐 eXross App 掃碼驗證」調整為「開啟書紐 eXross App 掃描下方 QR Code」。
+
+## 2026-03-13
+- [Feature] 書櫃首頁 header 右上角帳號管理按鈕旁顯示目前登入方式文字（如「三民書局登入」/「灰熊愛讀書登入」/「裝置登入」）。修改 `index.html`（在 `.user-menu` 內新增 `#login-method-label` span）、`style.css`（新增 `.login-method-label` 樣式，`.user-menu` 改為 flex 佈局）、`app.js`（在 `render()` 中根據 `loginMethod` 和 `linkedStores` 動態更新標籤文字）。
+- [Enhancement] 登入介面扁平化：將「三民書局」和「灰熊愛讀書」兩個書店按鈕從次層（需先點「透過書店登入」再選擇）移至登入頁第一層直接顯示，中間加入「或」分隔線，下方放置「掃描 QR Code 登入」按鈕，減少使用者操作步驟。修改檔案：`index.html`（重組 `.login-card` 區塊）、`style.css`（新增 `.login-section`、`.store-login-grid`、`.login-divider`、`.btn-store-login` 樣式）、`app.js`（移除舊 `btn-login-single`/`btn-login-device` 事件，新增 `btn-store-sanmin`/`btn-store-grizzly`/`btn-login-qr` 首層事件綁定）。
+- [Bugfix] 修正 OAuth 授權頁「取消並返回」按鈕的返回邏輯：原本從登入頁進入 OAuth 後點取消會跳到舊的「選擇授權書店」彈窗，改為直接返回 `sourceView`（登入頁或帳號管理頁），修改 `app.js` 中 `.btn-cancel-oauth` 的 navigate 目標。
+- [Enhancement] QR Code 直接嵌入登入首頁：將 QR Code 圖示、倒數計時器、掃描狀態訊息和「模擬手機已掃描」按鈕直接內嵌於登入卡片，使用者不再需要點擊按鈕才能看到 QR Code。重構 `app.js` 中的 `startQrTimer` 為通用函式（支援 `modal`/`inline` 兩種模式），並抽出 `handleSimulateScan` 共用方法。`style.css` 新增 `.inline-qr-wrapper`、`.inline-qr-box`、`.inline-qr-info` 等排版樣式。
+- [Enhancement] 登入首頁全面重新排版：調整左右面板比例為 2:3（品牌區較窄、登入卡片較寬），品牌區新增裝飾半透明圓圈和三色漸層，登入卡片改為淺灰背景 (`#f8f9fb`) 搭配置中內容區 (`max-width: 460px`)，書店按鈕改為白底帶細微陰影，QR Code 區段包裝於白底圓角卡片增加視覺層次，整體間距與字體大小微調以提升美觀與易用性。修改 `style.css` 與 `index.html`（新增 `.login-card-inner` 包裝層）。
+
 ## 2026-03-11
 - [Initial] 建立專案基礎架構，包含 `index.html`, `style.css`, `app.js`，並設定單頁應用 (SPA) 路由邏輯。
 - [Feature] 完成所有任務視圖 (外站、書紐登入、帳號管理、QR Code)，並綁定所有狀態管理 `app.js` 以支援 5 個任務情境的無限次循環測試，優化外站跳轉邏輯。

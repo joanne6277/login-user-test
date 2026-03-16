@@ -9,6 +9,8 @@ const AppState = {
 const app = {
     state: { ...AppState },
     qrTimerInterval: null,
+    inlineQrTimerInterval: null,
+    accountQrTimerInterval: null,
     
     init() {
         this.loadState();
@@ -54,25 +56,50 @@ const app = {
         
         this.state.currentView = viewId;
         
-        // 觸發 QR Code Timer
+        // 觸發 QR Code Timer (modal)
         if (viewId === 'view-qr-scan') {
-            this.startQrTimer();
+            this.startQrTimer('modal');
         } else if (this.qrTimerInterval) {
             clearInterval(this.qrTimerInterval);
             this.qrTimerInterval = null;
         }
 
+        // 觸發 inline QR Code Timer (登入首頁)
+        if (viewId === 'view-exross-login') {
+            this.startQrTimer('inline');
+        } else if (this.inlineQrTimerInterval) {
+            clearInterval(this.inlineQrTimerInterval);
+            this.inlineQrTimerInterval = null;
+        }
+
+        // 觸發帳號管理頁面 QR Code Timer
+        if (viewId === 'view-account' && this.state.loginMethod === 'single') {
+            this.startQrTimer('account');
+        } else if (this.accountQrTimerInterval) {
+            clearInterval(this.accountQrTimerInterval);
+            this.accountQrTimerInterval = null;
+        }
+
         this.saveState();
     },
 
-    startQrTimer() {
-        if (this.qrTimerInterval) clearInterval(this.qrTimerInterval);
+    startQrTimer(context = 'modal') {
+        // context: 'modal' (QR掃描彈窗), 'inline' (登入頁內嵌), 'account' (帳號管理頁)
+        const contextMap = {
+            inline: { intervalKey: 'inlineQrTimerInterval', timerId: 'inline-qr-timer', scanLineId: 'inline-scan-line', msgId: 'inline-status-msg', btnId: 'btn-inline-simulate-scan' },
+            account: { intervalKey: 'accountQrTimerInterval', timerId: 'account-qr-timer', scanLineId: 'account-scan-line', msgId: 'account-status-msg', btnId: 'btn-account-simulate-scan' },
+            modal: { intervalKey: 'qrTimerInterval', timerId: 'qr-timer', scanLineId: null, msgId: null, btnId: 'btn-simulate-scan' }
+        };
+        const cfg = contextMap[context] || contextMap.modal;
+        const intervalKey = cfg.intervalKey;
+        
+        if (this[intervalKey]) clearInterval(this[intervalKey]);
         
         let timeLeft = 90;
-        const timerSpan = document.getElementById('qr-timer');
-        const scanLine = document.querySelector('.scan-line');
-        const msgEl = document.querySelector('.status-msg');
-        const btnSimulate = document.getElementById('btn-simulate-scan');
+        const timerSpan = document.getElementById(cfg.timerId);
+        const scanLine = cfg.scanLineId ? document.getElementById(cfg.scanLineId) : document.querySelector('#view-qr-scan .scan-line');
+        const msgEl = cfg.msgId ? document.getElementById(cfg.msgId) : document.querySelector('#view-qr-scan .status-msg');
+        const btnSimulate = document.getElementById(cfg.btnId);
         
         if (timerSpan) timerSpan.innerText = timeLeft;
         if (scanLine) scanLine.style.display = 'block';
@@ -82,31 +109,93 @@ const app = {
         }
         if (btnSimulate) btnSimulate.disabled = false;
         
-        this.qrTimerInterval = setInterval(() => {
+        this[intervalKey] = setInterval(() => {
             timeLeft--;
             if (timerSpan) timerSpan.innerText = timeLeft;
             
             if (timeLeft <= 0) {
-                clearInterval(this.qrTimerInterval);
-                this.qrTimerInterval = null;
+                clearInterval(this[intervalKey]);
+                this[intervalKey] = null;
                 if (scanLine) scanLine.style.display = 'none';
                 if (msgEl) {
                     msgEl.innerText = "QR Code 已失效，請重新整理";
                     msgEl.style.color = "var(--danger)";
                 }
-                if (btnSimulate) btnSimulate.disabled = true; // 超時則禁用模擬掃描
+                if (btnSimulate) btnSimulate.disabled = true;
             }
         }, 1000);
     },
 
+    handleSimulateScan(context = 'modal') {
+        const contextMap = {
+            inline: { intervalKey: 'inlineQrTimerInterval', msgId: 'inline-status-msg' },
+            account: { intervalKey: 'accountQrTimerInterval', msgId: 'account-status-msg' },
+            modal: { intervalKey: 'qrTimerInterval', msgId: null }
+        };
+        const cfg = contextMap[context] || contextMap.modal;
+        const intervalKey = cfg.intervalKey;
+        const msgEl = cfg.msgId ? document.getElementById(cfg.msgId) : document.querySelector('#view-qr-scan .status-msg');
+        
+        if (msgEl) {
+            msgEl.innerText = "掃描成功！驗證裝置授權中...";
+            msgEl.style.color = "var(--primary)";
+        }
+        
+        // 點擊後立即停止倒數計時
+        if (this[intervalKey]) {
+            clearInterval(this[intervalKey]);
+            this[intervalKey] = null;
+        }
+        
+        setTimeout(() => {
+            const defaultAppStores = ['灰熊愛讀書', '三民書局', '讀冊', '金石堂'];
+            
+            if (!this.state.isLoggedIn) {
+                // 登入情境
+                this.state.isLoggedIn = true;
+                this.state.loginMethod = "device";
+                this.state.linkedStores = defaultAppStores;
+                this.saveState();
+                this.navigate('view-bookshelf');
+            } else {
+                // 驗證情境 (透過帳號管理)
+                this.state.loginMethod = "device";
+                const currentStores = Array.isArray(this.state.linkedStores) ? this.state.linkedStores : [];
+                this.state.linkedStores = [...new Set([...currentStores, ...defaultAppStores])];
+                this.saveState();
+                alert('裝置驗證成功！此裝置已設為信任裝置。');
+                this.navigate('view-bookshelf');
+            }
+            if (msgEl) {
+                msgEl.innerText = "等待掃描中...";
+                msgEl.style.color = "var(--text-light)";
+            }
+        }, 1200);
+    },
+
     bindEvents() {
-        // --- 登入頁面 ---
-        document.getElementById('btn-login-single').addEventListener('click', () => {
-            this.navigate('view-store-selector', 'view-exross-login');
+        // --- 登入頁面 (首層直接操作) ---
+        // 書店按鈕：直接跳到 OAuth 登入
+        document.getElementById('btn-store-sanmin').addEventListener('click', () => {
+            this.state.selectedAuthStore = '三民書局';
+            document.getElementById('oauth-store-name').innerText = '三民書局 授權登入';
+            this.navigate('view-oauth-login', 'view-exross-login');
         });
 
-        document.getElementById('btn-login-device').addEventListener('click', () => {
-            this.navigate('view-qr-scan', 'view-exross-login');
+        document.getElementById('btn-store-grizzly').addEventListener('click', () => {
+            this.state.selectedAuthStore = '灰熊愛讀書';
+            document.getElementById('oauth-store-name').innerText = '灰熊愛讀書 授權登入';
+            this.navigate('view-oauth-login', 'view-exross-login');
+        });
+
+        // 首頁內嵌 QR Code：重新整理
+        document.getElementById('btn-inline-refresh-qr').addEventListener('click', () => {
+            this.startQrTimer('inline');
+        });
+
+        // 首頁內嵌 QR Code：模擬掃描
+        document.getElementById('btn-inline-simulate-scan').addEventListener('click', () => {
+            this.handleSimulateScan('inline');
         });
 
         // --- 書店選擇 ---
@@ -135,51 +224,19 @@ const app = {
         });
 
         document.querySelector('.btn-cancel-oauth').addEventListener('click', () => {
-             this.navigate('view-store-selector', this.state.sourceView);
+             this.navigate(this.state.sourceView || 'view-exross-login');
         });
 
         // --- QR Code 掃描 ---
         const btnRefreshQr = document.getElementById('btn-refresh-qr');
         if (btnRefreshQr) {
             btnRefreshQr.addEventListener('click', () => {
-                this.startQrTimer();
+                this.startQrTimer('modal');
             });
         }
 
         document.getElementById('btn-simulate-scan').addEventListener('click', () => {
-            const msgEl = document.querySelector('.status-msg');
-            msgEl.innerText = "掃描成功！驗證裝置授權中...";
-            msgEl.style.color = "var(--primary)";
-            
-            // 點擊後立即停止倒數計時，避免在驗證途中還跳超時
-            if (this.qrTimerInterval) {
-                clearInterval(this.qrTimerInterval);
-                this.qrTimerInterval = null;
-            }
-            
-            setTimeout(() => {
-                const defaultAppStores = ['灰熊愛讀書', '三民書局', '讀冊', '金石堂'];
-                
-                // 如果是登入情境
-                if (!this.state.isLoggedIn) {
-                    this.state.isLoggedIn = true;
-                    this.state.loginMethod = "device";
-                    this.state.linkedStores = defaultAppStores; 
-                    this.saveState();
-                    this.navigate('view-bookshelf');
-                } else {
-                    // 如果是驗證情境 (透過帳號管理)
-                    this.state.loginMethod = "device"; 
-                    // 原本可能已有其他書店紀錄，這裡結合App帶來的四家做聯集
-                    const currentStores = Array.isArray(this.state.linkedStores) ? this.state.linkedStores : [];
-                    this.state.linkedStores = [...new Set([...currentStores, ...defaultAppStores])];
-                    this.saveState();
-                    alert('裝置驗證成功！此裝置已設為信任裝置。');
-                    this.navigate('view-bookshelf');
-                }
-                msgEl.innerText = "等待掃描中...";
-                msgEl.style.color = "var(--text-light)";
-            }, 1200);
+            this.handleSimulateScan('modal');
         });
 
         document.querySelectorAll('.btn-cancel-qr').forEach(btn => {
@@ -201,9 +258,14 @@ const app = {
             this.navigate('view-store-selector', 'view-account'); 
         });
 
-        // 裝置驗證
-        document.getElementById('btn-acc-device-auth').addEventListener('click', () => {
-            this.navigate('view-qr-scan', 'view-account');
+        // 帳號管理頁面內嵌 QR Code：重新整理
+        document.getElementById('btn-account-refresh-qr').addEventListener('click', () => {
+            this.startQrTimer('account');
+        });
+
+        // 帳號管理頁面內嵌 QR Code：模擬掃描
+        document.getElementById('btn-account-simulate-scan').addEventListener('click', () => {
+            this.handleSimulateScan('account');
         });
 
         // 登出 / 解除連結
@@ -229,6 +291,23 @@ const app = {
     },
 
     render() {
+        // --- 0. 更新 Header 登入方式標籤 ---
+        const loginMethodLabel = document.getElementById('login-method-label');
+        if (loginMethodLabel) {
+            if (this.state.isLoggedIn) {
+                const stores = Array.isArray(this.state.linkedStores) ? this.state.linkedStores : [];
+                if (this.state.loginMethod === 'device') {
+                    loginMethodLabel.innerText = '裝置登入';
+                } else if (stores.length > 0) {
+                    loginMethodLabel.innerText = `${stores[0]}登入`;
+                } else {
+                    loginMethodLabel.innerText = '書店登入';
+                }
+            } else {
+                loginMethodLabel.innerText = '';
+            }
+        }
+
         // --- 1. 更新帳號管理 UI ---
         const statusText = document.getElementById('account-status-text');
         const linkedStoreText = document.getElementById('linked-store-name');

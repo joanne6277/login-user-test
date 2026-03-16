@@ -20,24 +20,42 @@
                     <p>您的專屬跨平台電子書閱讀器。隨時登入，馬上閱讀。</p>
                 </div>
                 <div class="login-card">
+                  <div class="login-card-inner">
                     <h3>登入書紐 eXross</h3>
                     <p class="subtitle">請選擇您的登入方式</p>
-                    <div class="login-options">
-                        <button class="btn btn-login-option" id="btn-login-single">
-                            <span class="icon">📚</span>
-                            <div class="text">
-                                <strong>透過書店登入</strong>
-                                <span>使用三民或灰熊書店帳號登入</span>
+
+                    <!-- QR Code 掃碼登入區塊 (直接嵌入) -->
+                    <div class="login-section login-qr-section">
+                        <p class="login-section-label">📱 使用書紐 App 掃碼登入</p>
+                        <p class="login-section-desc">開啟書紐 eXross App 掃描下方 QR Code，即可同步匯入您在各書店已購買的所有電子書</p>
+                        <div class="inline-qr-wrapper">
+                            <div class="qr-code-box inline-qr-box">
+                                <div class="qr-placeholder">
+                                    <div class="scan-line" id="inline-scan-line"></div>
+                                </div>
                             </div>
-                        </button>
-                        <button class="btn btn-login-option" id="btn-login-device">
-                            <span class="icon">📱</span>
-                            <div class="text">
-                                <strong>掃描QR Code登入</strong>
-                                <span>使用書紐 App 登入，同步匯入您在網路書店平台已購買的所有電子書</span>
+                            <div class="inline-qr-info">
+                                <div class="qr-timer-container inline-qr-timer">
+                                    <p>QR Code 重整倒數: <strong id="inline-qr-timer" style="color: var(--primary);">90</strong> 秒</p>
+                                    <button class="btn btn-outline btn-refresh-qr" id="btn-inline-refresh-qr" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; border-width: 1px;">重新整理</button>
+                                </div>
+                                <p class="status-msg" id="inline-status-msg">等待掃描中...</p>
+                                <button class="btn btn-text mt-4" id="btn-inline-simulate-scan" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; color: var(--text-light);">模擬手機已掃描</button>
                             </div>
-                        </button>
+                        </div>
                     </div>
+
+                    <div class="login-divider"><span>或</span></div>
+
+                    <!-- 書店帳號登入區塊 -->
+                    <div class="login-section">
+                        <p class="login-section-label">📚 使用書店帳號登入</p>
+                        <div class="store-login-grid">
+                            <button class="btn btn-store-login" id="btn-store-sanmin" data-store="三民書局">三民書局</button>
+                            <button class="btn btn-store-login" id="btn-store-grizzly" data-store="灰熊愛讀書">灰熊愛讀書</button>
+                        </div>
+                    </div>
+                  </div>
                 </div>
             </div>
         </section>
@@ -101,6 +119,7 @@
             <header class="top-nav">
                 <div class="logo">書紐 eXross</div>
                 <div class="user-menu" id="user-menu-btn" title="帳號管理">
+                    <span class="login-method-label" id="login-method-label"></span>
                     <div class="avatar">👤</div>
                 </div>
             </header>
@@ -145,12 +164,26 @@
                             </div>
                             <button class="btn btn-outline" id="btn-acc-switch-store">連結其他書店</button>
                         </div>
-                        <div class="action-row" id="row-device-auth">
+                        <div class="account-qr-section" id="row-device-auth">
                             <div class="action-info">
                                 <strong>一鍵同步多家書櫃</strong>
-                                <p>使用書紐eXross App掃碼驗證，即可在網頁端同步檢視您於各書店購買的所有藏書。<br><span style="font-size: 0.85em; color: var(--primary); cursor: pointer; text-decoration: underline;">(未安裝？點此下載 App 快速整合您的書櫃)</span></p>
+                                <p>開啟書紐 eXross App 掃描下方 QR Code，即可在網頁端同步檢視您於各書店購買的所有藏書。<登入</p>
                             </div>
-                            <button class="btn btn-outline" id="btn-acc-device-auth">掃描 QR Code 登入</button>
+                            <div class="inline-qr-wrapper account-qr-wrapper">
+                                <div class="qr-code-box inline-qr-box">
+                                    <div class="qr-placeholder">
+                                        <div class="scan-line" id="account-scan-line"></div>
+                                    </div>
+                                </div>
+                                <div class="inline-qr-info">
+                                    <div class="qr-timer-container inline-qr-timer">
+                                        <p>QR Code 重整倒數: <strong id="account-qr-timer" style="color: var(--primary);">90</strong> 秒</p>
+                                        <button class="btn btn-outline btn-refresh-qr" id="btn-account-refresh-qr" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; border-width: 1px;">重新整理</button>
+                                    </div>
+                                    <p class="status-msg" id="account-status-msg">等待掃描中...</p>
+                                    <button class="btn btn-text mt-4" id="btn-account-simulate-scan" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; color: var(--text-light);">模擬手機已掃描</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
